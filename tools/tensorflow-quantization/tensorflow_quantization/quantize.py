@@ -300,18 +300,19 @@ def _execute_quantize_model(
     # 3. Ensure that the original model is kept untouched.
     #    This step is needed as `clone_model` with our custom `clone_function` wraps layers in a destructive manner.
     #    TODO: delete later if a better solution is found, most likely inside our custom `clone_function`.
-    cloned_model = tf.keras.models.clone_model(model)
-    cloned_model.set_weights(model.get_weights())
+    model = tf.keras.models.clone_model(model, input_tensors=None, clone_function=_quantize_model_layer_clone_function)
+    # cloned_model = tf.keras.models.clone_model(model)
+    # cloned_model.set_weights(model.get_weights())
 
     # 4. Wrap quantizable layers
-    quant_model = tf.keras.models.clone_model(
-        cloned_model, input_tensors=None, clone_function=_quantize_model_layer_clone_function
-    )
+    # quant_model = tf.keras.models.clone_model(
+    #     cloned_model, input_tensors=None, clone_function=_quantize_model_layer_clone_function
+    # )
 
     # 5. Clean global space afterwards
     q_config_object.clean()
 
-    return quant_model
+    return model
 
 
 def _recognize_config_class_id(
